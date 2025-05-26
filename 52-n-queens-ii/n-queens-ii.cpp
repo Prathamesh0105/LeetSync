@@ -1,49 +1,30 @@
 class Solution {
 private:
-    bool isValid(int row, int col, vector<bool>& upDiag, vector<bool>& left, vector<bool>& lowDiag, int n){
-        if(col==0) return true;
-        return !upDiag[row+col] && !left[row] && !lowDiag[(n-1)+(col-row)];
-    }
-
-    void generate(int col, vector<string>& chess, int& cnt, int n,
-                vector<bool>& upDiag, vector<bool>& left, vector<bool>& lowDiag){
-        
-        if(col==n){
-            cnt++;
-        }
-
-        for(int row=0;row<n;row++){
-            if(isValid(row,col,upDiag,left,lowDiag,n)){
-                chess[row][col] = 'Q';
-                upDiag[row+col] = 1;
-                
-                left[row] = 1;
-                lowDiag[(n-1)+(col-row)] = 1;
-                
-                generate(col+1,chess,cnt,n,upDiag,left,lowDiag);
-                
-                upDiag[row+col] = 0;
-                left[row] = 0;
-                lowDiag[(n-1)+(col-row)] = 0;
-
-                chess[row][col] = '.';
-            }
-        }
-
-        return;
-    }
+    int count = 0;
 
 public:
     int totalNQueens(int n) {
-        vector<bool> upDiag(2*n-1,0);
-        vector<bool> left(n,0);
-        vector<bool> lowDiag(2*n-1,0);
+        count = 0;
+        backtrack(0, n, 0, 0, 0);
+        return count;
+    }
 
-        vector<string> chess(n,string(n,'.'));
-        int cnt = 0;
+    void backtrack(int row, int n, unsigned long long columns, unsigned long long diag1, unsigned long long diag2) {
+        if (row == n) {
+            count++;
+            return;
+        }
 
-        generate(0,chess,cnt,n,upDiag,left,lowDiag);
+        for (int col = 0; col < n; col++) {
+            unsigned long long curr_col = 1ULL << col;
+            unsigned long long curr_diag1 = 1ULL << (row - col + n - 1);
+            unsigned long long curr_diag2 = 1ULL << (row + col);
 
-        return cnt;
+            if ((columns & curr_col) || (diag1 & curr_diag1) || (diag2 & curr_diag2)) {
+                continue;
+            }
+
+            backtrack(row + 1, n, columns | curr_col, diag1 | curr_diag1, diag2 | curr_diag2);
+        }
     }
 };
